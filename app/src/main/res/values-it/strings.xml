@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="service_description">Prima di aprire Instagram o YouTube (app o sito in Vivaldi, Chrome, Brave, Firefox) mostra una pausa per respirare. Legge solo l\'indirizzo della pagina aperta.</string>
+
+    <string name="tagline">Un respiro prima di Instagram e YouTube.</string>
+    <string name="status_on">Attivo</string>
+    <string name="status_off">Non attivo</string>
+    <string name="status_hint_on">Controlla le app e i siti in Vivaldi, Chrome, Brave e Firefox.</string>
+    <string name="status_hint_off">In Accessibilità apri \"App installate\", scegli breather e attivalo.</string>
+    <string name="enable">Apri Accessibilità</string>
+    <string name="battery">Togli i limiti della batteria</string>
+
+    <string name="today">Oggi</string>
+    <string name="used">%1$d / %2$d min</string>
+    <string name="attempts">Tentativi: Instagram %1$d · YouTube %2$d</string>
+
+    <string name="rules">Regole</string>
+    <string name="rule_pause">Pausa</string>
+    <string name="rule_budget">Minuti al giorno</string>
+    <string name="rule_session">Minuti per apertura</string>
+    <string name="unit_seconds">%d s</string>
+    <string name="unit_minutes">%d min</string>
+
+    <string name="inhale">Inspira</string>
+    <string name="exhale">Espira</string>
+    <string name="question">Vuoi ancora aprire %s?</string>
+    <plurals name="question_expired">
+        <item quantity="one">È passato %1$d minuto. Continui su %2$s?</item>
+        <item quantity="many">Sono passati %1$d minuti. Continui su %2$s?</item>
+        <item quantity="other">Sono passati %1$d minuti. Continui su %2$s?</item>
+    </plurals>
+    <string name="detail_attempt">È il %1$d° tentativo di oggi · %2$d di %3$d minuti usati</string>
+    <string name="detail_session">%1$d di %2$d minuti usati oggi</string>
+    <string name="nudge">Hai l\'X3 a portata di mano?</string>
+    <string name="leave">Lascia stare</string>
+    <string name="open_for">Apri per %d min</string>
+    <string name="exhausted_title">Per oggi basta così.</string>
+    <string name="exhausted_detail">Hai usato tutti i %d minuti di oggi. Si riparte domani.</string>
+    <string name="close">Chiudi</string>
+</resources>

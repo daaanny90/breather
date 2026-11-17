@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">breather</string>
+    <string name="service_description">Shows a short breathing pause before Instagram or YouTube opens, in the apps and in Vivaldi, Chrome, Brave and Firefox. It only reads the address of the open page.</string>
+
+    <string name="tagline">A breath before Instagram and YouTube.</string>
+    <string name="status_on">On</string>
+    <string name="status_off">Off</string>
+    <string name="status_hint_on">Watching the apps and the sites in Vivaldi, Chrome, Brave and Firefox.</string>
+    <string name="status_hint_off">In Accessibility, open \"Installed apps\", pick breather and turn it on.</string>
+    <string name="enable">Open Accessibility</string>
+    <string name="battery">Remove battery limits</string>
+
+    <string name="today">Today</string>
+    <string name="used">%1$d / %2$d min</string>
+    <string name="attempts">Attempts: Instagram %1$d · YouTube %2$d</string>
+
+    <string name="rules">Rules</string>
+    <string name="rule_pause">Pause</string>
+    <string name="rule_budget">Minutes per day</string>
+    <string name="rule_session">Minutes per opening</string>
+    <string name="unit_seconds">%d s</string>
+    <string name="unit_minutes">%d min</string>
+
+    <string name="inhale">Breathe in</string>
+    <string name="exhale">Breathe out</string>
+    <string name="question">Still want to open %s?</string>
+    <plurals name="question_expired">
+        <item quantity="one">%1$d minute has passed. Keep going on %2$s?</item>
+        <item quantity="other">%1$d minutes have passed. Keep going on %2$s?</item>
+    </plurals>
+    <string name="detail_attempt">Attempt %1$d today · %2$d of %3$d minutes used</string>
+    <string name="detail_session">%1$d of %2$d minutes used today</string>
+    <string name="nudge">Is your X3 within reach?</string>
+    <string name="leave">Let it go</string>
+    <string name="open_for">Open for %d min</string>
+    <string name="exhausted_title">That\'s it for today.</string>
+    <string name="exhausted_detail">You\'ve used all %d minutes for today. See you tomorrow.</string>
+    <string name="close">Close</string>
+</resources>

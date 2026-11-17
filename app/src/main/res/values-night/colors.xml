@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="paper">#121613</color>
+    <color name="card">#1A201C</color>
+    <color name="ink">#ECE7DC</color>
+    <color name="muted">#9AA29B</color>
+    <color name="line">#2C342F</color>
+    <color name="accent">#8DB097</color>
+    <color name="accent_soft">#223029</color>
+    <color name="warn">#E09A7E</color>
+    <color name="on_ink">#121613</color>
+</resources>
