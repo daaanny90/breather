@@ -31,7 +31,7 @@
     </plurals>
     <string name="detail_attempt">È il %1$d° tentativo di oggi · %2$d di %3$d minuti usati</string>
     <string name="detail_session">%1$d di %2$d minuti usati oggi</string>
-    <string name="nudge">Hai l\'X3 a portata di mano?</string>
+    <string name="nudge">Hai un libro a portata di mano?</string>
     <string name="leave">Lascia stare</string>
     <string name="open_for">Apri per %d min</string>
     <string name="exhausted_title">Per oggi basta così.</string>
