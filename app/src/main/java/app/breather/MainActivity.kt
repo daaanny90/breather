@@ -15,26 +15,27 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 
-/** Status, today's numbers and the three rules. */
+/** Status, the rules with today's usage, and the pause length. */
 class MainActivity : Activity() {
 
     private lateinit var store: Store
+    private lateinit var ruleList: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<View>(R.id.root).padForSystemBars()
         store = Store(this)
+        ruleList = findViewById(R.id.rule_list)
 
         findViewById<Button>(R.id.enable).setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         findViewById<Button>(R.id.battery).setOnClickListener { requestBatteryExemption() }
-
-        val rules = findViewById<LinearLayout>(R.id.rules)
-        addStepper(rules, R.string.rule_pause, R.string.unit_seconds, 5..60, 5, store::pauseSeconds)
-        addStepper(rules, R.string.rule_budget, R.string.unit_minutes, 5..180, 5, store::budgetMinutes)
-        addStepper(rules, R.string.rule_session, R.string.unit_minutes, 1..30, 1, store::sessionMinutes)
+        findViewById<Button>(R.id.add_rule).setOnClickListener {
+            startActivity(Intent(this, RuleActivity::class.java))
+        }
+        addStepper(findViewById(R.id.settings), R.string.rule_pause, R.string.unit_seconds, 5..60, 5, store::pauseSeconds)
     }
 
     override fun onResume() {
@@ -53,16 +54,29 @@ class MainActivity : Activity() {
         findViewById<View>(R.id.enable).visibility = if (enabled) View.GONE else View.VISIBLE
         val unrestricted = getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName)
         findViewById<View>(R.id.battery).visibility = if (unrestricted) View.GONE else View.VISIBLE
+        showRules()
+    }
 
-        val usedSeconds = (store.usedMs() / 1_000L).toInt()
-        findViewById<TextView>(R.id.used).text =
-            getString(R.string.used, usedSeconds / 60, store.budgetMinutes)
-        findViewById<ProgressBar>(R.id.usage).apply {
-            max = store.budgetMinutes * 60
-            progress = usedSeconds
+    private fun showRules() {
+        ruleList.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        for (rule in store.rules()) {
+            val row = inflater.inflate(R.layout.item_rule, ruleList, false)
+            val usedSeconds = (store.usedMs(rule) / 1_000L).toInt()
+            row.findViewById<TextView>(R.id.name).text = rule.name
+            val attempts = store.attempts(rule)
+            row.findViewById<TextView>(R.id.usage).text = resources.getQuantityString(
+                R.plurals.rule_usage, attempts, usedSeconds / 60, rule.budgetMinutes, attempts,
+            )
+            row.findViewById<ProgressBar>(R.id.bar).apply {
+                max = rule.budgetMinutes * 60
+                progress = usedSeconds
+            }
+            row.setOnClickListener {
+                startActivity(Intent(this, RuleActivity::class.java).putExtra(RuleActivity.EXTRA_RULE, rule.id))
+            }
+            ruleList.addView(row)
         }
-        findViewById<TextView>(R.id.attempts).text =
-            getString(R.string.attempts, store.attempts(Target.INSTAGRAM), store.attempts(Target.YOUTUBE))
     }
 
     private fun isServiceEnabled(): Boolean {
@@ -77,30 +91,5 @@ class MainActivity : Activity() {
         startActivity(
             Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")),
         )
-    }
-
-    private fun addStepper(
-        parent: LinearLayout,
-        label: Int,
-        unit: Int,
-        range: IntRange,
-        step: Int,
-        value: kotlin.reflect.KMutableProperty0<Int>,
-    ) {
-        val row = LayoutInflater.from(this).inflate(R.layout.item_stepper, parent, false)
-        val valueView = row.findViewById<TextView>(R.id.value)
-        row.findViewById<TextView>(R.id.label).setText(label)
-        fun show() {
-            valueView.text = getString(unit, value.get())
-        }
-        fun change(delta: Int) {
-            value.set((value.get() + delta).coerceIn(range))
-            show()
-            refresh()
-        }
-        row.findViewById<Button>(R.id.minus).setOnClickListener { change(-step) }
-        row.findViewById<Button>(R.id.plus).setOnClickListener { change(step) }
-        show()
-        parent.addView(row)
     }
 }

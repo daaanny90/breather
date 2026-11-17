@@ -80,36 +80,26 @@
                 style="@style/Breather.Eyebrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/today" />
+                android:text="@string/rules" />
 
-            <TextView
-                android:id="@+id/used"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:fontFamily="serif"
-                android:textColor="@color/ink"
-                android:textSize="34sp" />
-
-            <ProgressBar
-                android:id="@+id/usage"
-                style="@android:style/Widget.Material.ProgressBar.Horizontal"
+            <LinearLayout
+                android:id="@+id/rule_list"
                 android:layout_width="match_parent"
-                android:layout_height="6dp"
-                android:layout_marginTop="12dp"
-                android:progressDrawable="@drawable/progress_usage" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="vertical" />
 
-            <TextView
-                android:id="@+id/attempts"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/add_rule"
+                style="@style/Breather.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="@color/muted"
-                android:textSize="14sp" />
+                android:text="@string/add_rule" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/rules"
+            android:id="@+id/settings"
             style="@style/Breather.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -121,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                android:text="@string/rules" />
+                android:text="@string/settings" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

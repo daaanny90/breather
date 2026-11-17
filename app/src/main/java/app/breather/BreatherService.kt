@@ -14,18 +14,18 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 
 /**
- * Watches the foreground app. When Instagram or YouTube is open (native app or a site in a known
- * browser) without an active session, it shows [PauseActivity]. Time inside a session counts
- * against the daily budget.
+ * Watches the foreground app. When an app or a site (in a known browser) from one of the rules is
+ * open without an active session, it shows [PauseActivity]. Time inside a session counts against
+ * that rule's daily budget.
  */
 class BreatherService : AccessibilityService() {
 
     private lateinit var store: Store
     private val handler = Handler(Looper.getMainLooper())
 
-    /** Last target seen in each browser's address bar; kept while the bar is hidden by scrolling. */
-    private val lastUrlTarget = mutableMapOf<String, Target?>()
-    private var current: Target? = null
+    /** Id of the rule last seen in each browser's address bar; kept while the bar is hidden by scrolling. */
+    private val lastUrlRule = mutableMapOf<String, String?>()
+    private var currentId: String? = null
     private var trackingSince = 0L
     private var screenOn = true
     private var lastEval = 0L
@@ -34,9 +34,9 @@ class BreatherService : AccessibilityService() {
 
     private val tick = object : Runnable {
         override fun run() {
-            val target = current ?: return
+            val rule = current() ?: return setCurrent(null)
             flush()
-            check(target, inSession = true)
+            check(rule, inSession = true)
             handler.postDelayed(this, TICK_MS)
         }
     }
@@ -89,75 +89,77 @@ class BreatherService : AccessibilityService() {
         super.onDestroy()
     }
 
+    private fun current(): Rule? = currentId?.let(store::rule)
+
     private fun evaluate() {
         lastEval = SystemClock.elapsedRealtime()
         val root = rootInActiveWindow ?: return
         val fg = root.packageName?.toString() ?: return
-        val target = when {
+        val rules = store.rules()
+        val rule = when {
             fg == packageName -> null
-            Browsers.isBrowser(fg) -> browserTarget(fg, root)
-            else -> Target.forPackage(fg)
+            else -> rules.forPackage(fg) ?: if (Browsers.isBrowser(fg)) browserRule(fg, root, rules) else null
         }
-        logChange(fg, target)
-        val wasInside = target != null && target == current
-        setCurrent(target)
-        if (target != null) check(target, inSession = wasInside)
+        logChange(fg, rule)
+        val wasInside = rule != null && rule.id == currentId
+        setCurrent(rule)
+        if (rule != null) check(rule, inSession = wasInside)
     }
 
-    private fun browserTarget(pkg: String, root: AccessibilityNodeInfo): Target? {
+    private fun browserRule(pkg: String, root: AccessibilityNodeInfo, rules: List<Rule>): Rule? {
         val bar = Browsers.readUrlBar(pkg, root)
         // A focused bar holds what the user is typing, not the page address.
         if (bar != null && !bar.focused) {
-            val target = Target.forUrl(bar.address)
-            if (lastUrlTarget[pkg] != target || pkg !in lastUrlTarget) {
-                Log.d(TAG, "url[$pkg] ${bar.address?.let(Target::hostOf)} -> ${target ?: "-"}")
+            val id = rules.forUrl(bar.address)?.id
+            if (lastUrlRule[pkg] != id || pkg !in lastUrlRule) {
+                Log.d(TAG, "url[$pkg] ${bar.address?.let(Urls::hostOf)} -> ${id ?: "-"}")
             }
-            lastUrlTarget[pkg] = target
+            lastUrlRule[pkg] = id
         }
-        return lastUrlTarget[pkg]
+        return lastUrlRule[pkg]?.let { id -> rules.firstOrNull { it.id == id } }
     }
 
-    private fun setCurrent(target: Target?) {
-        if (target == current) return
+    private fun setCurrent(rule: Rule?) {
+        if (rule?.id == currentId) return
         flush()
-        current = target
+        currentId = rule?.id
         handler.removeCallbacks(tick)
-        if (target != null) handler.postDelayed(tick, TICK_MS)
+        if (rule != null) handler.postDelayed(tick, TICK_MS)
     }
 
-    /** Adds the time spent on the current target during an open session to today's total. */
+    /** Adds the time spent on the current rule during an open session to its total for today. */
     private fun flush() {
         val now = SystemClock.elapsedRealtime()
-        val target = current
-        if (target != null && screenOn && store.grantUntil(target) > 0) {
-            store.addUsed(now - trackingSince)
+        val rule = current()
+        if (rule != null && screenOn && store.grantUntil(rule) > 0) {
+            store.addUsed(rule, now - trackingSince)
         }
         trackingSince = now
     }
 
-    private fun check(target: Target, inSession: Boolean) {
-        val until = store.grantUntil(target)
+    private fun check(rule: Rule, inSession: Boolean) {
+        val until = store.grantUntil(rule)
         val reason = when {
-            store.remainingMs() <= 0 -> Reason.EXHAUSTED
+            store.remainingMs(rule) <= 0 -> Reason.EXHAUSTED
             System.currentTimeMillis() < until -> return
             inSession && until > 0 -> Reason.EXPIRED
             else -> Reason.ATTEMPT
         }
-        launchPause(target, reason, countAttempt = !inSession)
+        launchPause(rule, reason, countAttempt = !inSession)
     }
 
-    private fun launchPause(target: Target, reason: Reason, countAttempt: Boolean) {
+    private fun launchPause(rule: Rule, reason: Reason, countAttempt: Boolean) {
         val now = SystemClock.elapsedRealtime()
         if (PauseActivity.isShowing || now - lastLaunch < LAUNCH_DEBOUNCE_MS) return
         lastLaunch = now
-        store.clearGrant(target)
-        val attempt = if (countAttempt) store.addAttempt(target) else store.attempts(target)
-        Log.i(TAG, "pause $target $reason attempt=$attempt")
-        startActivity(PauseActivity.intent(this, target, reason, attempt))
+        store.clearGrant(rule)
+        val attempt = if (countAttempt) store.addAttempt(rule) else store.attempts(rule)
+        Log.i(TAG, "pause ${rule.name} $reason attempt=$attempt")
+        startActivity(PauseActivity.intent(this, rule, reason, attempt))
     }
 
-    private fun logChange(fg: String, target: Target?) {
-        val line = "$fg -> ${target ?: "-"}"
+    private fun logChange(fg: String, rule: Rule?) {
+        val line = "$fg -> ${rule?.name ?: "-"}"
         if (line != lastLog) {
             Log.i(TAG, line)
             lastLog = line

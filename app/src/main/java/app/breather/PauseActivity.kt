@@ -8,11 +8,14 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 
-/** Full-screen breathing pause shown before Instagram or YouTube opens. */
+/** Why the pause screen is shown. */
+enum class Reason { ATTEMPT, EXPIRED, EXHAUSTED }
+
+/** Full-screen breathing pause shown before an app or site from a rule opens. */
 class PauseActivity : Activity() {
 
     private lateinit var store: Store
-    private lateinit var target: Target
+    private lateinit var rule: Rule
     private lateinit var breath: BreathView
     private lateinit var headline: TextView
     private lateinit var detail: TextView
@@ -25,9 +28,7 @@ class PauseActivity : Activity() {
         findViewById<View>(R.id.root).padForSystemBars()
 
         store = Store(this)
-        target = intent.getStringExtra(EXTRA_TARGET)
-            ?.let { name -> Target.entries.firstOrNull { it.name == name } }
-            ?: return finish()
+        rule = intent.getStringExtra(EXTRA_RULE)?.let(store::rule) ?: return finish()
         val reason = intent.getStringExtra(EXTRA_REASON)
             ?.let { name -> Reason.entries.firstOrNull { it.name == name } }
             ?: Reason.ATTEMPT
@@ -37,7 +38,7 @@ class PauseActivity : Activity() {
         headline = findViewById(R.id.headline)
         detail = findViewById(R.id.detail)
         open = findViewById(R.id.open)
-        findViewById<TextView>(R.id.eyebrow).text = target.label
+        findViewById<TextView>(R.id.eyebrow).text = rule.name
 
         val leave = findViewById<Button>(R.id.leave)
         leave.setOnClickListener { goHome() }
@@ -75,14 +76,14 @@ class PauseActivity : Activity() {
 
     private fun ask(reason: Reason, attempt: Int) {
         asked = true
-        val usedMinutes = (store.usedMs() / 60_000L).toInt()
+        val usedMinutes = (store.usedMs(rule) / 60_000L).toInt()
         if (reason == Reason.EXPIRED) {
-            val minutes = store.sessionMinutes
-            headline.crossfadeTo(resources.getQuantityString(R.plurals.question_expired, minutes, minutes, target.label))
-            detail.text = getString(R.string.detail_session, usedMinutes, store.budgetMinutes)
+            val minutes = rule.sessionMinutes
+            headline.crossfadeTo(resources.getQuantityString(R.plurals.question_expired, minutes, minutes, rule.name))
+            detail.text = getString(R.string.detail_session, usedMinutes, rule.budgetMinutes)
         } else {
-            headline.crossfadeTo(getString(R.string.question, target.label))
-            detail.text = getString(R.string.detail_attempt, attempt, usedMinutes, store.budgetMinutes)
+            headline.crossfadeTo(getString(R.string.question, rule.name))
+            detail.text = getString(R.string.detail_attempt, attempt, usedMinutes, rule.budgetMinutes)
         }
         detail.fadeIn()
         open.text = getString(R.string.open_for, sessionMinutes())
@@ -93,20 +94,20 @@ class PauseActivity : Activity() {
         asked = true
         breath.start(0)
         headline.text = getString(R.string.exhausted_title)
-        detail.text = getString(R.string.exhausted_detail, store.budgetMinutes)
+        detail.text = getString(R.string.exhausted_detail, rule.budgetMinutes, rule.name)
         detail.visibility = View.VISIBLE
         leave.text = getString(R.string.close)
         open.visibility = View.GONE
     }
 
-    /** Session length, capped by what's left of today's budget. */
+    /** Session length, capped by what's left of the rule's budget for today. */
     private fun sessionMinutes(): Int {
-        val remaining = (store.remainingMs() / 60_000L).toInt()
-        return minOf(store.sessionMinutes, remaining).coerceAtLeast(1)
+        val remaining = (store.remainingMs(rule) / 60_000L).toInt()
+        return minOf(rule.sessionMinutes, remaining).coerceAtLeast(1)
     }
 
     private fun openSession() {
-        store.grant(target, System.currentTimeMillis() + sessionMinutes() * 60_000L)
+        store.grant(rule, System.currentTimeMillis() + sessionMinutes() * 60_000L)
         finish()
     }
 
@@ -124,18 +125,18 @@ class PauseActivity : Activity() {
         var isShowing = false
             private set
 
-        private const val EXTRA_TARGET = "target"
+        private const val EXTRA_RULE = "rule"
         private const val EXTRA_REASON = "reason"
         private const val EXTRA_ATTEMPT = "attempt"
 
-        fun intent(context: Context, target: Target, reason: Reason, attempt: Int): Intent =
+        fun intent(context: Context, rule: Rule, reason: Reason, attempt: Int): Intent =
             Intent(context, PauseActivity::class.java)
                 .addFlags(
                     Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TASK or
                         Intent.FLAG_ACTIVITY_NO_ANIMATION,
                 )
-                .putExtra(EXTRA_TARGET, target.name)
+                .putExtra(EXTRA_RULE, rule.id)
                 .putExtra(EXTRA_REASON, reason.name)
                 .putExtra(EXTRA_ATTEMPT, attempt)
     }
