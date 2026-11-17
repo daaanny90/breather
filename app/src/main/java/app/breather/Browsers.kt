@@ -30,9 +30,7 @@ object Browsers {
     /** Returns the address bar, or null when it isn't on screen (e.g. hidden while scrolling). */
     fun readUrlBar(pkg: String, root: AccessibilityNodeInfo): UrlBar? {
         val spec = specs[pkg] ?: return null
-        val node = root.findAccessibilityNodeInfosByViewId(spec.viewId).firstOrNull()
-            ?: findByIdBreadthFirst(root, spec.viewId)
-            ?: return null
+        val node = findUrlBar(pkg, root) ?: return null
         val address = if (spec.fromDescription) {
             node.contentDescription?.toString()?.trim()?.substringBefore(' ')?.trimEnd('.')
         } else {
@@ -41,13 +39,28 @@ object Browsers {
         return UrlBar(address, node.isFocused)
     }
 
-    /** Fallback for ids the framework lookup can't resolve (Compose test tags); toolbars sit near the root. */
-    private fun findByIdBreadthFirst(root: AccessibilityNodeInfo, viewId: String): AccessibilityNodeInfo? {
+    fun findUrlBar(pkg: String, root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        val spec = specs[pkg] ?: return null
+        // Fallback for ids the framework lookup can't resolve (Compose test tags).
+        return root.findAccessibilityNodeInfosByViewId(spec.viewId).firstOrNull()
+            ?: findBreadthFirst(root) { it.viewIdResourceName == spec.viewId }
+    }
+
+    /** The text field the user is typing into, e.g. the address bar after a tap on it. */
+    fun findTypingField(root: AccessibilityNodeInfo): AccessibilityNodeInfo? =
+        root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.takeIf { it.isEditable }
+            ?: findBreadthFirst(root) { it.isEditable && it.isFocused }
+
+    /** Toolbars sit near the root, so a capped breadth-first walk finds them quickly. */
+    private fun findBreadthFirst(
+        root: AccessibilityNodeInfo,
+        match: (AccessibilityNodeInfo) -> Boolean,
+    ): AccessibilityNodeInfo? {
         val queue = ArrayDeque<AccessibilityNodeInfo>().apply { add(root) }
         var visited = 0
         while (queue.isNotEmpty() && visited++ < MAX_NODES) {
             val node = queue.removeFirst()
-            if (node.viewIdResourceName == viewId) return node
+            if (match(node)) return node
             for (i in 0 until node.childCount) node.getChild(i)?.let(queue::add)
         }
         return null

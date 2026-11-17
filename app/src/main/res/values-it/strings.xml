@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="service_description">Prima di aprire le app e i siti delle tue regole (siti in Vivaldi, Chrome, Brave e Firefox) mostra una pausa per respirare. Legge solo l\'indirizzo della pagina aperta.</string>
+    <string name="service_description">Prima di aprire le app e i siti delle tue regole (siti in Vivaldi, Chrome, Brave e Firefox) mostra una pausa per respirare. Legge solo l\'indirizzo della pagina aperta, e ci scrive una pagina vuota quando chiudi la scheda di un sito.</string>
 
     <string name="tagline">Un respiro prima delle app e dei siti che scegli.</string>
     <string name="status_on">Attivo</string>
@@ -58,4 +58,5 @@
     <string name="exhausted_title">Per oggi basta così.</string>
     <string name="exhausted_detail">Hai usato tutti i %1$d minuti di %2$s per oggi. Si riparte domani.</string>
     <string name="close">Chiudi</string>
+    <string name="close_tab">Chiudi la scheda</string>
 </resources>

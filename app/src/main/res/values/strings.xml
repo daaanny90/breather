@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">breather</string>
     <string name="chevron" translatable="false">›</string>
-    <string name="service_description">Shows a short breathing pause before the apps and sites in your rules open (sites in Vivaldi, Chrome, Brave and Firefox). It only reads the address of the open page.</string>
+    <string name="service_description">Shows a short breathing pause before the apps and sites in your rules open (sites in Vivaldi, Chrome, Brave and Firefox). It only reads the address of the open page, and writes a blank page there when you close a site\'s tab.</string>
 
     <string name="tagline">A breath before the apps and sites you choose.</string>
     <string name="status_on">On</string>
@@ -58,4 +58,5 @@
     <string name="exhausted_title">That\'s it for today.</string>
     <string name="exhausted_detail">You\'ve used all %1$d minutes for %2$s today. See you tomorrow.</string>
     <string name="close">Close</string>
+    <string name="close_tab">Close the tab</string>
 </resources>
