@@ -18,7 +18,7 @@ A small Android app that puts a breathing pause in front of the apps and sites y
 2. A full-screen pause covers it, and a circle breathes in and out for 15 seconds.
 3. The app asks whether you still want to open it, and tells you how many times you tried today.
 4. You choose:
-   - **Let it go** goes back to the home screen. So does the back key.
+   - **Let it go** goes back to the home screen. So does the back key. For a site it becomes **Close the tab**: the tab moves to a blank page and the browser stays open.
    - **Open for 10 min** starts a session. When the session ends, the pause comes back.
 5. Time spent in sessions counts against the rule's daily budget. Once the budget is used up, the pause only lets you close.
 
@@ -35,7 +35,7 @@ A rule has a name, some sites and some apps, plus its own minutes per day and mi
 
 The pause length is one setting for all rules.
 
-To recognise the sites, an AccessibilityService reads the browser's address bar. The app doesn't read page content and has no network access.
+To recognise the sites, an AccessibilityService reads the browser's address bar. When you close a site's tab from the pause, it taps the bar and types `about:blank`. The app doesn't read page content and has no network access.
 
 ## Install
 
