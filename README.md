@@ -23,16 +23,18 @@ You can change the pause length, the daily minutes and the minutes per opening i
 
 To recognise the sites, an AccessibilityService reads the browser's address bar. The app doesn't read page content and has no network access.
 
-## Build and install
+## Install
 
-You need JDK 17 or newer and Android SDK 35. The app runs on Android 11 and later.
+Download the APK from the [latest release](https://github.com/daaanny90/breather/releases/latest) and open it on the phone. The app runs on Android 11 and later.
+
+To build it yourself, you need JDK 17 or newer and Android SDK 35:
 
 ```sh
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Then turn the service on: Settings → Accessibility → Installed apps → breather.
+Either way, turn the service on: Settings → Accessibility → Installed apps → breather.
 - If the switch is greyed out, open App info → ⋮ → Allow restricted settings.
 - On Samsung phones, also use the "Remove battery limits" button in the app, otherwise One UI may stop the service.
 
@@ -47,3 +49,7 @@ The app is in English and Italian. You can pick the language per app in the syst
   - The Samsung Internet support is untested.
   - So are links opened in in-app browsers, such as the ones in WhatsApp or Telegram.
 - It has been tested on a Galaxy S23 running Android 17.
+
+## License
+
+[GPL-3.0](LICENSE)
