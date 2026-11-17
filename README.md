@@ -2,6 +2,8 @@
 
 A small Android app that puts a breathing pause in front of the apps and sites you choose, both in the apps and in the browser. It starts with Instagram and YouTube. Inspired by [one sec](https://one-sec.app).
 
+**Download:** get the APK from the [latest release](https://github.com/daaanny90/breather/releases/latest), then turn breather on in Settings → Accessibility.
+
 <p>
   <img src="docs/screenshots/main.png" width="200" alt="Main screen with the rules and today's minutes">
   <img src="docs/screenshots/breathe.png" width="200" alt="Breathing pause">
